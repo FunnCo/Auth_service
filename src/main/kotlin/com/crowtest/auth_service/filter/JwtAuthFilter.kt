@@ -5,6 +5,8 @@ import com.crowtest.auth_service.service.JwtService
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetailsService
@@ -18,21 +20,26 @@ class JwtAuthFilter(
         val userDetailsService: UserDetailsService
         ) : OncePerRequestFilter() {
 
+    private val logger = LoggerFactory.getLogger(this::class.java.simpleName)
 
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
-
         val authHeader = request.getHeader("Authorization")
 
+
+        if ((authHeader == null || !authHeader.startsWith("Bearer ")) && request.requestURI.contains("auth")) {
+            filterChain.doFilter(request,response)
+            return
+        }
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response)
+            response.sendError(HttpStatus.BAD_REQUEST.value(), "Bad auth details")
             return
         }
 
         val jwt = authHeader.substring(7)
-        val userEmail = jwtService.extractUsername(jwt);
+        val userId = jwtService.extractUsername(jwt);
 
-        if (userEmail != null && SecurityContextHolder.getContext().authentication == null) {
-            val userDetails = userDetailsService.loadUserByUsername(userEmail)
+        if (userId != null && SecurityContextHolder.getContext().authentication == null) {
+            val userDetails = userDetailsService.loadUserByUsername(userId)
             if(jwtService.isTokenValid(jwt, userDetails as User)){
                 val authToken = UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities)
                 authToken.details = WebAuthenticationDetailsSource().buildDetails(request)

@@ -14,7 +14,7 @@ class Group (
                 strategy = "org.hibernate.id.UUIDGenerator"
         )
         @Column(name = "group_id", nullable = false)
-        val group_id: UUID? = null,
+        val groupId: UUID? = null,
 
         @Column(name = "name")
         val name: String

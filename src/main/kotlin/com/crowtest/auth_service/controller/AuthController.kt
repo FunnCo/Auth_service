@@ -1,13 +1,12 @@
 package com.crowtest.auth_service.controller
 
-import com.crowtest.auth_service.controller.model.AuthRequest
-import com.crowtest.auth_service.controller.model.AuthResponse
-import com.crowtest.auth_service.controller.model.RegisterRequest
+import com.crowtest.auth_service.dto.request.AuthRequest
+import com.crowtest.auth_service.dto.response.AuthResponse
+import com.crowtest.auth_service.dto.request.RegisterRequest
 import com.crowtest.auth_service.repository.UserRepository
 import com.crowtest.auth_service.service.AuthService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -27,9 +26,9 @@ class AuthController {
 
     @PostMapping("/register")
     // create new user in db
-    fun registerNewUser(@RequestBody request: RegisterRequest):ResponseEntity<Any> {
+    fun registerNewUser(@RequestBody request: RegisterRequest, @RequestParam(name = "role", required = false) role: String?):ResponseEntity<Any> {
         try {
-            return ResponseEntity.ok(authService.register(request))
+            return ResponseEntity.ok(authService.register(request, role))
         } catch (e: ResponseStatusException){
             return ResponseEntity.badRequest().build()
         }

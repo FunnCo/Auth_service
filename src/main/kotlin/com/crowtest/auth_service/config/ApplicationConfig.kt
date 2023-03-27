@@ -13,6 +13,8 @@ import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
+import java.util.UUID
+import kotlin.jvm.optionals.getOrNull
 
 @Configuration
 class ApplicationConfig {
@@ -20,9 +22,10 @@ class ApplicationConfig {
     @Autowired
     lateinit var userRepository: UserRepository
 
+    @OptIn(ExperimentalStdlibApi::class)
     @Bean
     fun userDetailsService():UserDetailsService{
-        return UserDetailsService { username -> userRepository.findByEmail(username) ?: throw UsernameNotFoundException("User not found") }
+        return UserDetailsService { username -> userRepository.findByEmail(username) ?: userRepository.findById(UUID.fromString(username)).getOrNull() ?: throw UsernameNotFoundException("User not found") }
     }
 
     @Bean

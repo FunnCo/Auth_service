@@ -1,6 +1,6 @@
 package com.crowtest.auth_service.service
 
-import com.crowtest.auth_service.controller.model.RegisterRequest
+import com.crowtest.auth_service.dto.request.RegisterRequest
 import com.crowtest.auth_service.entity.Group
 import com.crowtest.auth_service.repository.GroupRepository
 import com.crowtest.auth_service.repository.UserRepository
@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
+import java.util.UUID
 
 @Service
 class UserService {
@@ -21,9 +22,9 @@ class UserService {
     @Autowired
     lateinit var passwordEncoder: PasswordEncoder
 
-    fun update(request: RegisterRequest, oldEmail: String): Boolean {
+    fun update(request: RegisterRequest, userId: String): Boolean {
 
-        val user = userRepository.findByEmail(oldEmail)!!
+        val user = userRepository.findById(UUID.fromString(userId)).orElse(null)
 
         if (request.password != null) {
             user.userPassword = passwordEncoder.encode(request.password)

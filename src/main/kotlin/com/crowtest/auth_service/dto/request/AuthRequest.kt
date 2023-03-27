@@ -1,4 +1,4 @@
-package com.crowtest.auth_service.controller.model
+package com.crowtest.auth_service.dto.request
 
 data class AuthRequest (
         val email: String,
